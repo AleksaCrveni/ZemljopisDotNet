@@ -1,0 +1,6 @@
+@ZemljopisAPI_HostAddress = http://localhost:5071
+
+GET {{ZemljopisAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
