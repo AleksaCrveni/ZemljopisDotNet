@@ -13,13 +13,8 @@ namespace ZemljopisAPI.Controllers;
 [ApiController]
 [ApiVersion(1.0)]
 [Route("api/v{version:apiVersion}/Room")]
-public class RoomController : ControllerBase
+public class RoomController(IRoomService _service) : ControllerBase
 {
-  private readonly IRoomService _service;
-  public RoomController(IRoomService service)
-  {
-    _service = service;
-  }
 
   [HttpPost("Create")]
   public async Task<ObjectResult> CreateRoom(CreateRoomDto roomData)

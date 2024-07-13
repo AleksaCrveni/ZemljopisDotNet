@@ -2,18 +2,15 @@ using System.Net.WebSockets;
 using System.Text;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
+using ZemljopisAPI.Services.Sockets;
 
 namespace ZemljopisAPI.DTOs.WS;
 
 [ApiController]
 [ApiVersion(1.0)]
 [Route("api/v{version:apiVersion}/ws")]
-public class WebSocketsController : ControllerBase
+public class WebSocketsController(ILogger<WebSocketsController> _logger, ISocketService _socketService) : ControllerBase
 {
-  public WebSocketsController()
-  {
-
-  }
 
   [Route("")]
   public async Task Get()
@@ -28,8 +25,6 @@ public class WebSocketsController : ControllerBase
       WebSocketReceiveResult receiveResult = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
       var socketData = Encoding.Default.GetString(buffer, 0, receiveResult.Count);
 
-      // events are encoded in first 3
-      string evt = socketData.Substring(0, 3);
       while (!receiveResult.CloseStatus.HasValue)
       {
         /*
