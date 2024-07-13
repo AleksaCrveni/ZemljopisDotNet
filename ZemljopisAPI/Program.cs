@@ -28,6 +28,7 @@ if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
 }
 
+// @TODO add allowed origins?
 app.UseWebSockets(new WebSocketOptions()
 {
     KeepAliveInterval = TimeSpan.FromMinutes(2)

@@ -6,16 +6,9 @@ using ZemljopisAPI.Helpers;
 
 namespace ZemljopisAPI.Services.Room;
 
-public class RoomService : IRoomService, IScoped
+// @NOTE Use primary constructors for now to form an opinion compared to normal way
+public class RoomService(ILogger<RoomService> _logger, IDB _dbRepository) : IRoomService, IScoped
 {
-  private readonly ILogger<RoomService> _logger;
-  private readonly IDB _dbRepository;
-  public RoomService(ILogger<RoomService> logger, IDB dbRepository)
-  {
-    _logger = logger;
-    _dbRepository = dbRepository;
-  }
-
   public async Task<(int code, string? resBody)> CreateRoom(CreateRoomDto data)
   {
     var (code, roomCode) = (StatusCodes.Status200OK, "");

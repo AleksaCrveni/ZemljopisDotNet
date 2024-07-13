@@ -20,22 +20,28 @@ public class WebSocketsController : ControllerBase
   {
     if (HttpContext.WebSockets.IsWebSocketRequest)
     {
+      /*
+       * ReceiveAsync basically awaits result
+       */
       using var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
       var buffer = new byte[1024 * 4];
       WebSocketReceiveResult receiveResult = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-      var str = Encoding.Default.GetString(buffer);
+      var socketData = Encoding.Default.GetString(buffer, 0, receiveResult.Count);
 
+      // events are encoded in first 3
+      string evt = socketData.Substring(0, 3);
       while (!receiveResult.CloseStatus.HasValue)
       {
+        /*
         await webSocket.SendAsync(
           new ArraySegment<byte>(buffer, 0, receiveResult.Count),
           receiveResult.MessageType,
           receiveResult.EndOfMessage,
           CancellationToken.None);
-
+        */
         receiveResult = await webSocket.ReceiveAsync(
           new ArraySegment<byte>(buffer), CancellationToken.None);
-        str = Encoding.Default.GetString(buffer);
+        socketData = Encoding.Default.GetString(buffer);
       }
 
       if (receiveResult != null)
@@ -45,8 +51,6 @@ public class WebSocketsController : ControllerBase
           receiveResult.CloseStatusDescription,
           CancellationToken.None);
       }
-
-
     }
     else
     {
