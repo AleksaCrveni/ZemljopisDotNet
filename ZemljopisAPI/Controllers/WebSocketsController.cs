@@ -2,6 +2,7 @@ using System.Net.WebSockets;
 using System.Text;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using ZemljopisAPI.Services.Sockets;
 
 namespace ZemljopisAPI.DTOs.WS;
@@ -23,20 +24,24 @@ public class WebSocketsController(ILogger<WebSocketsController> _logger, ISocket
       using var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
       var buffer = new byte[1024 * 4];
       WebSocketReceiveResult receiveResult = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-      var socketData = Encoding.Default.GetString(buffer, 0, receiveResult.Count);
+
+      string socketData = Encoding.Default.GetString(buffer, 0, receiveResult.Count);
+      SocketResult result = new SocketResult();
+      string responseString = "";
 
       while (!receiveResult.CloseStatus.HasValue)
       {
-        /*
-        await webSocket.SendAsync(
-          new ArraySegment<byte>(buffer, 0, receiveResult.Count),
+        result = await _socketService.ProcessSocketData(socketData);
+        responseString = JsonConvert.SerializeObject(result!);
+        var outBuffer = Encoding.Default.GetBytes(responseString);
+        await webSocket.SendAsync(new ArraySegment<byte>(outBuffer, 0, outBuffer.Length),
           receiveResult.MessageType,
           receiveResult.EndOfMessage,
           CancellationToken.None);
-        */
+
         receiveResult = await webSocket.ReceiveAsync(
           new ArraySegment<byte>(buffer), CancellationToken.None);
-        socketData = Encoding.Default.GetString(buffer);
+        socketData = Encoding.Default.GetString(buffer, 0, receiveResult.Count);
       }
 
       if (receiveResult != null)
