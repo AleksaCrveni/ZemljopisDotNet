@@ -15,12 +15,12 @@ public class SocketService(ILogger<SocketService> _logger) : ISocketService, ITr
     } catch(Exception e)
     {
       // this is basically 400 response
-      return new SocketResult() { Evt = Events.ERR };
+      return new SocketResult() { Evt = Events.ERR, Success = false };
     }
 
     if (data is null)
     {
-      return new SocketResult() { Evt = Events.ERR };
+      return new SocketResult() { Evt = Events.ERR, Success = false };
     }
 
     return new SocketResult() { Evt = data.Evt, ResponseString = "OK"};
