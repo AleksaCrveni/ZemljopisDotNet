@@ -10,5 +10,6 @@ public class SocketData
 public enum Events
 {
   ERR = -1,
-  GET_ROOM_DATA = 0
+  JOIN_ROOM = 0,
+  GET_ROOM_DATA = 1, // Is this even needed?
 }

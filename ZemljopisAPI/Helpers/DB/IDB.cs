@@ -10,6 +10,5 @@ public interface IDB
   public Task<(bool isSuccessful, bool exists)> KeyExistsAsync(RedisKey key);
   public Task<bool> CreateRoomTrx(string roomCode, string username, HashEntry[] entries);
   public Task<bool> JoinRoomTrx(string roomCode, string username);
-  public Task<AllRoomDataDto?> RetrieveAllRoomData(string roomCode);
-
+  public Task<AllRoomData?> RetrieveAllRoomData(string roomCode);
 }

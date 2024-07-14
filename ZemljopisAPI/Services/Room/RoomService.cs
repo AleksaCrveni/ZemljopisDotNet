@@ -1,8 +1,10 @@
 using System.Net;
+using System.Net.WebSockets;
 using StackExchange.Redis;
 using ZemljopisAPI.DI;
 using ZemljopisAPI.DTOs.Room;
 using ZemljopisAPI.Helpers;
+using SocketManager = ZemljopisAPI.Helpers.SocketManager;
 
 namespace ZemljopisAPI.Services.Room;
 
@@ -41,10 +43,12 @@ public class RoomService(ILogger<RoomService> _logger, IDB _dbRepository) : IRoo
     roomData[1] = new HashEntry("roomCode", roomCode);
     roomData[2] = new HashEntry("playersReady", 0);
     roomData[3] = new HashEntry("createdAt", DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
-    bool ok = await _dbRepository.CreateRoomTrx(roomCode, data.Username, roomData);
-    if (!ok)
+    bool okCreateRoom = await _dbRepository.CreateRoomTrx(roomCode, data.Username, roomData);
+    if (!okCreateRoom)
       return (StatusCodes.Status500InternalServerError, null);
 
+    // think what to do in failed scenario
+    bool okAddRoomTracker = SocketManager.Rooms.TryAdd(roomCode, new List<WebSocket>());
     return (code, roomCode);
   }
 

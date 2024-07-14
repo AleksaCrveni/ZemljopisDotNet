@@ -99,7 +99,7 @@ public class DB  : IDB, ITransient
     }
   }
 
-  public async Task<AllRoomDataDto?> RetrieveAllRoomData(string roomCode)
+  public async Task<AllRoomData?> RetrieveAllRoomData(string roomCode)
   {
     try
     {
@@ -110,7 +110,7 @@ public class DB  : IDB, ITransient
       RedisValue[] playersData = await playersDataTask;
       HashEntry[] roomData = await roomDataTask;
 
-      AllRoomDataDto data = new AllRoomDataDto()
+      AllRoomData data = new AllRoomData()
       {
         PlayerList = playersData,
         RoomData = roomData,

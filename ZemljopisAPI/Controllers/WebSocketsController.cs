@@ -31,7 +31,7 @@ public class WebSocketsController(ILogger<WebSocketsController> _logger, ISocket
 
       while (!receiveResult.CloseStatus.HasValue)
       {
-        result = await _socketService.ProcessSocketData(socketData);
+        result = await _socketService.ProcessSocketData(socketData, webSocket);
         responseString = JsonConvert.SerializeObject(result!);
 
         // @TODO refactor to reuse buffer, for now keep going till I built something
