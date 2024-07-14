@@ -1,11 +1,12 @@
 using System.Reflection.Metadata.Ecma335;
 using StackExchange.Redis;
 using ZemljopisAPI.DI;
+using ZemljopisAPI.DTOs.Room;
 using ZemljopisAPI.Validators;
 
 namespace ZemljopisAPI.Helpers;
 
-public class DB : IDB, ITransient
+public class DB  : IDB, ITransient
 {
   private readonly IDatabase db;
   private readonly ILogger<DB> _logger;
@@ -95,6 +96,31 @@ public class DB : IDB, ITransient
     {
       _logger.LogError(ex, "Error in JoinRoomTrx. ErrMsg: {Message}", ex.Message);
       return false;
+    }
+  }
+
+  public async Task<AllRoomDataDto?> RetrieveAllRoomData(string roomCode)
+  {
+    try
+    {
+      var playersDataTask = db.ListRangeAsync($"players:{roomCode}");
+      var roomDataTask = db.HashGetAllAsync($"room:{roomCode}");
+      await Task.WhenAll(playersDataTask, roomDataTask);
+
+      RedisValue[] playersData = await playersDataTask;
+      HashEntry[] roomData = await roomDataTask;
+
+      AllRoomDataDto data = new AllRoomDataDto()
+      {
+        PlayerList = playersData,
+        RoomData = roomData,
+      };
+      return data;
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(ex, "Error in JoinRoomTrx. ErrMsg: {Message}", ex.Message);
+      return null;
     }
   }
 }

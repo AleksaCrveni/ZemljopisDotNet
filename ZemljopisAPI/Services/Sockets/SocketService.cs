@@ -1,10 +1,11 @@
 using Newtonsoft.Json;
 using ZemljopisAPI.DI;
 using ZemljopisAPI.DTOs.WS;
+using ZemljopisAPI.Helpers;
 
 namespace ZemljopisAPI.Services.Sockets;
 
-public class SocketService(ILogger<SocketService> _logger) : ISocketService, ITransient
+public class SocketService(ILogger<SocketService> _logger, IDB _dbRepository) : ISocketService, ITransient
 {
   public async Task<SocketResult> ProcessSocketData(string socketString)
   {
@@ -23,18 +24,23 @@ public class SocketService(ILogger<SocketService> _logger) : ISocketService, ITr
       return new SocketResult() { Evt = Events.ERR, Success = false };
     }
 
-    await Dispatch(data);
-    return new SocketResult() { Evt = data.Evt, ResponseString = "OK"};
+    object? response = await Dispatch(data);
+
+    if (response is not null)
+      return new SocketResult() { Evt = data.Evt, Response = response};
+
+    return new SocketResult() { Evt = Events.ERR, Response = "", Success = false};
   }
 
-  private async Task Dispatch(SocketData data)
+  private async Task<object?> Dispatch(SocketData data)
   {
     // @TODO think about what to return
-    var _ = (data.Evt) switch
+    object response = (data.Evt) switch
     {
-      Events.GET_ROOM_DATA => "",
+      Events.GET_ROOM_DATA => await _dbRepository.RetrieveAllRoomData(data.RoomCode),
       Events.ERR => "",
-      _ => ""
+      _ => null
     };
+    return response;
   }
 }

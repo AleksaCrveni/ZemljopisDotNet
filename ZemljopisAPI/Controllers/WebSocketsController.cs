@@ -33,6 +33,7 @@ public class WebSocketsController(ILogger<WebSocketsController> _logger, ISocket
       {
         result = await _socketService.ProcessSocketData(socketData);
         responseString = JsonConvert.SerializeObject(result!);
+
         // @TODO refactor to reuse buffer, for now keep going till I built something
         var outBuffer = Encoding.Default.GetBytes(responseString);
         await webSocket.SendAsync(new ArraySegment<byte>(outBuffer, 0, outBuffer.Length),
