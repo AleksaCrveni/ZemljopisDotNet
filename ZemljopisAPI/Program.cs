@@ -1,5 +1,6 @@
 using Microsoft.Extensions.FileProviders;
 using ZemljopisAPI.DI;
+using ZemljopisAPI.Processors;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,7 +20,6 @@ builder.Services.AddSwaggerGen();
 
 
 var app = builder.Build();
-app.UseWebSockets();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -31,7 +31,7 @@ if (app.Environment.IsDevelopment())
 // @TODO add allowed origins?
 app.UseWebSockets(new WebSocketOptions()
 {
-    KeepAliveInterval = TimeSpan.FromMinutes(2)
+    KeepAliveInterval = TimeSpan.FromMinutes(1)
 });
 
 app.UseStaticFiles();
@@ -48,7 +48,6 @@ await app.RunAsync();
 void RegisterPaths()
 {
     UseFileServer("", "Html", "index.html");
-
 }
 
 void UseFileServer(string requestPath, string physicalPath, string filename)

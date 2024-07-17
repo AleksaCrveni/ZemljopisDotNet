@@ -28,12 +28,12 @@ public class WebSocketsController(ILogger<WebSocketsController> _logger, ISocket
       string socketData = Encoding.Default.GetString(buffer, 0, receiveResult.Count);
       SocketResult result = new SocketResult();
       string responseString = "";
-
       while (!receiveResult.CloseStatus.HasValue)
       {
         result = await _socketService.ProcessSocketData(socketData, webSocket);
         responseString = JsonConvert.SerializeObject(result!);
-
+        if (!result.Disconnect)
+          break;
         // @TODO refactor to reuse buffer, for now keep going till I built something
         var outBuffer = Encoding.Default.GetBytes(responseString);
         await webSocket.SendAsync(new ArraySegment<byte>(outBuffer, 0, outBuffer.Length),
@@ -46,13 +46,10 @@ public class WebSocketsController(ILogger<WebSocketsController> _logger, ISocket
         socketData = Encoding.Default.GetString(buffer, 0, receiveResult.Count);
       }
 
-      if (receiveResult != null)
-      {
         await webSocket.CloseAsync(
           receiveResult.CloseStatus.Value,
           receiveResult.CloseStatusDescription,
           CancellationToken.None);
-      }
     }
     else
     {
